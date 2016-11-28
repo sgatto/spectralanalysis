@@ -18,16 +18,16 @@ def run():
     # f        = open(os.path.join(path,'E_FIELD_000.000.bin.000'),'rb')
     component = 0
     basetime = 0
-    deltaT = 15
+    deltaT = 20
     sub = 5
     endtime = basetime + deltaT
     myname = "E_FIELD_"
     
-    for start in range(260, 350, 10):
+    for start in range(0, 350, 10):
         print "analizzo il numero %d\n" % start
         basetime = start
         endtime = basetime + deltaT
-        myanalysis = fieldAnalysis(basetime, endtime, substeps=sub, base=myname, end=".bin.000")
+        myanalysis = FieldAnalysis(basetime, endtime, substeps=sub, base=myname, end=".bin.000", reflect=False)
         myanalysis.collect_data()
         myanalysis.setWindow()
         myanalysis.do_fft(zposition=0, comp=component)

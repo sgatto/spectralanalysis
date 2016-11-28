@@ -23,19 +23,23 @@ import math
 
 def time_filter(loctime, tmax):
     """add envelope time"""
-    return math.exp(-(((loctime-tmax*0.5)/(0.35*tmax))**4))
+    return 0.5*(1-math.cos(2*np.pi*t/tmax))
 
 
 class FieldAnalysis:
     """ la mia classe"""
 
-    def __init__(self, tmin, tmax, substeps, base, end):
+    def __init__(self, tmin, tmax, substeps, base, end, reflect):
         self.base = base
         self.end = end
         self.tmin = int(tmin)
         self.tmax = int(tmax)
         self.substeps = int(substeps)
-
+        self.reflect=reflect
+        print "reflect:"
+        print reflect
+        if self.reflect:
+            self.tmax=2*self.tmax
         if 1000 % substeps:
             print "ERROR: wrong number of timesteps!"
             sys.exit()
@@ -46,7 +50,7 @@ class FieldAnalysis:
 
         self.init_values()
         self.set_frequency()
-        self.basename = ("%s%03d" % (self.base, self.tmin))
+        self.basename = ("%s%03d" % (self.base, (self.tmin+self.tmin)/2 ))
 
     def analize_field(self, filename):
         f = open(filename, 'rb')
@@ -132,16 +136,39 @@ class FieldAnalysis:
         base = self.base
         end = self.end
         tindex = 0
-        for i in range(self.tmin, self.tmax):
-            for v in range(0, self.substeps):
-                t = i + v * 1.0 / self.substeps
+        if self.reflect:
+            for i in range(self.tmin, (self.tmax)/2):
+                print i
+                for v in range(0, self.substeps):
+                    t = i + v * 1.0 / self.substeps
+                    self.times[tindex] = t
+                    name = base + ("%07.3f" % t) + end
+                    self.filenames.append(name)
+                    print name
+                    tindex += 1
+            print "PAUSA"
+            for i in range((self.tmax)/2, self.tmin, -1):
+                print i
+                for v in range(0, self.substeps):
+                    t = i + v * 1.0 / self.substeps
+                    self.times[tindex] = t
+                    t = i - v * 1.0 / self.substeps
+                    name = base + ("%07.3f" % t) + end
+                    self.filenames.append(name)
+                    print name
+                    tindex += 1
+        else:
+            for i in range(self.tmin, self.tmax):
+                for v in range(0, self.substeps):
+                    t = i + v * 1.0 / self.substeps
 
-                self.times[tindex] = t
-                name = base + ("%03d.%03d" % (i, v * 1000 / self.substeps)) + end
-                self.filenames.append(name)
-                # print name
-                tindex += 1
-        self.Nt = len(self.filenames)
+                    self.times[tindex] = t
+                    name = base + ("%03d.%03d" % (i, v * 1000 / self.substeps)) + end
+                    self.filenames.append(name)
+                    # print name
+                    tindex += 1
+        if (self.Nt != len(self.filenames)):
+            print ("error self.Nt=%d len(self.filenames))=%d" %(self.Nt, len(self.filenames)))
 
     def collect_data(self):
         self.alldata = np.zeros((self.Nt, self.Nz, self.Ny, self.Nx, self.Nc))
@@ -258,7 +285,7 @@ class FieldAnalysis:
         for t in range(0, self.kt.size):
             for j in range(0, self.ky.size):
                 for i in range(0, self.kx.size):
-                    f1.write("%f\n" %  absolute(self.mytrasf3D[t, j, i]))
+                    f1.write("%f\n" %  np.absolute(self.mytrasf3D[t, j, i]))
         # np.savetxt( "kx-omega.txt" ,np.real(self.trasf[:,:,0]),fmt='%15.14e')
         f1.close()
 
