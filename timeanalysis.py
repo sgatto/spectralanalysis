@@ -207,9 +207,11 @@ class FieldAnalysis:
         self.print_parameters()
 
     def print_parameters(self):
-        print ("SIZE: [ Lx, Ly, Lz ] = [ %f, %f, %f ]" % (self.Lx, self.Ly, self.Lz))
+        print ("Start Analysis:")
+        print ("base name = %s" %self.basename)
+        print ("SIZE: [ Lx, Ly, Lz ] = [ %.3f, %.3f, %.3f ]" % (self.Lx, self.Ly, self.Lz))
         print (" Np : [ Nx, Ny, Nz ] = [ %d, %d, %d ]" % (self.Nx, self.Ny, self.Nz))
-        print ("time span = [%f:%f]     Nt = %d" % (self.tmin, self.tmax, self.Nt))
+        print ("time span = [%.1f:%.1f]     Nt = %d" % (self.tmin, self.tmax, self.Nt))
 
     def set_frequency(self):
         
@@ -241,9 +243,9 @@ class FieldAnalysis:
         
 
     def print_frequency(self):
-        print ("SIZE: [ Lkx, Lky, Lkz ] = [ %f, %f, %f ]" % (self.Lkx, self.Lky, self.Lkz))
-        print (" dk : [ dkx, dky, dkz ] = [ %f, %f, %f ]" % (self.dkx, self.dky, self.dkz))
-        print ("max_freq = %f     domega = %f" % (self.Lkt, self.dkt))
+        print ("SIZE: [ Lkx, Lky, Lkz ] = [ %6.3f, %6.3f, %6.3f ]" % (self.Lkx, self.Lky, self.Lkz))
+        print (" dk : [ dkx, dky, dkz ] = [ %6.3f, %6.3f, %6.3f ]" % (self.dkx, self.dky, self.dkz))
+        print ("max_freq = %.2f     domega = %.2f" % (self.Lkt, self.dkt))
 
     def do_fft(self, zposition, comp):
         #trasf3D = np.zeros((self.Nt, self.Ny, self.Nx))
