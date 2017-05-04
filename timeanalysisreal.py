@@ -326,8 +326,8 @@ class FieldAnalysis:
         f1.close()
 
 
-    def saveKxOmega(self):
-        name = ("%s-kx-omega.txt" % (self.basename,))
+    def saveKxOmega(self, appendix=""):
+        name = ("%s-%s-kx-omega.txt" % (self.basename,appendix))
         writeLengthNt = (self.grid.Nkt/2)
 
         f1 = open(name, 'w')
@@ -338,14 +338,14 @@ class FieldAnalysis:
         # np.savetxt( "kx-omega.txt" ,np.real(self.trasf[:,:,0]),fmt='%15.14e')
         f1.close()
 
-    def saveKxKyatomega(self, omegain):
+    def saveKxKyatomega(self, omegain, appendix=""):
 
         ifreqin = int(round(omegain/self.grid.dkt))
         for deltaifreq in range (-2,3,1):
             ifreqout=ifreqin+deltaifreq
             if(ifreqout>=0):
                 omegaout = self.grid.kt[ifreqout]
-                name = ("%s-kx-ky-at-omega%4.2f.txt" % (self.basename, omegaout))
+                name = ("%s-%s-kx-ky-at-omega%4.2f.txt" % (self.basename, appendix, omegaout))
                 f1 = open(name, 'w')
                 for j in range(0, self.grid.ky.size):
                     for i in range(0, self.grid.Nkx):
@@ -353,10 +353,10 @@ class FieldAnalysis:
                     f1.write("\n")
                 f1.close()
 
-    def saveNewData(self, timein):
+    def saveNewData(self, timein, appendix=""):
 
         itime = int(round(timein/self.grid.dt))
-        name = ("%s-x-y.txt" % (self.basename))
+        name = ("%s-%s-x-y.txt" % (self.basename, appendix))
         f1 = open(name, 'w')
         for j in range(0, self.grid.Ny):
             for i in range(0, self.grid.Nx):
