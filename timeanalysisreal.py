@@ -357,7 +357,7 @@ class FieldAnalysis:
     def saveNewData(self, timein, varname):
 
         itime = int(round(timein/self.grid.dt))
-        name = ("%s-t%#03.0f-x-y.txt" % (varname,self.tcenter))
+        name = ("%s-t%#03f-x-y.txt" % (varname,self.tcenter))
         f1 = open(name, 'w')
         for j in range(0, self.grid.Ny):
             for i in range(0, self.grid.Nx):
