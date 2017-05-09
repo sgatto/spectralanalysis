@@ -1,8 +1,9 @@
 #! /bin/bash
 
 for comp in {0..4..1};
+do
   for time in {0..400..50};
-    do
-      python analysis.py -tstart $time -cstart $comp
-    done
+  do
+    python analysis.py -tstart $time -cstart $comp
   done
+done
