@@ -74,6 +74,7 @@ class FieldAnalysis:
         self.end = end
         self.tmin = int(tmin)
         self.tmax = int(tmax)
+        self.tcenter = (self.tmin+self.tmax)*0.5
         self.substeps = int(substeps)
         if 1000 % substeps:
             print "ERROR: wrong number of timesteps!"
@@ -301,8 +302,8 @@ class FieldAnalysis:
         # np.savetxt( "kx-omega.txt" ,np.real(self.trasf[:,:,0]),fmt='%15.14e')
         f1.close()
 
-    def saveVTK3Dfft(self, varname, appendix=""):
-        name = ("%s-fft%s.vtk" % (self.basename,appendix))
+    def saveVTK3Dfft(self, varname):
+        name = ("%s-t%3.0f-fft3D.vtk" % (varname,self.tcenter))
         factor = 2.*np.pi*0.00318
         writeLengthNt = (self.grid.Nkt/2)
         totPts = self.grid.Nkx * self.grid.Nky * writeLengthNt
@@ -315,7 +316,7 @@ class FieldAnalysis:
         f1.write("ORIGIN %f %f %f\n" %(self.grid.kx[0]*factor, self.grid.ky[0]*factor, self.grid.kt[0]))
         f1.write("SPACING %f %f %f\n" % (self.grid.dkx*factor, self.grid.dky*factor, self.grid.dkt))
         f1.write("POINT_DATA %d\n" %totPts)
-        f1.write("SCALARS %s float\n" %(varname))
+        f1.write("SCALARS fft%s float\n" %(varname))
         f1.write("LOOKUP_TABLE default\n")
 
         for t in range(0, writeLengthNt):
@@ -326,8 +327,8 @@ class FieldAnalysis:
         f1.close()
 
 
-    def saveKxOmega(self, appendix=""):
-        name = ("%s-%s-kx-omega.txt" % (self.basename,appendix))
+    def saveKxOmega(self, varname):
+        name = ("%s-t%3.0f-kx-omega.txt" % (varname,self.tcenter))
         writeLengthNt = (self.grid.Nkt/2)
 
         f1 = open(name, 'w')
@@ -338,14 +339,14 @@ class FieldAnalysis:
         # np.savetxt( "kx-omega.txt" ,np.real(self.trasf[:,:,0]),fmt='%15.14e')
         f1.close()
 
-    def saveKxKyatomega(self, omegain, appendix=""):
+    def saveKxKyatomega(self, omegain, varname):
 
         ifreqin = int(round(omegain/self.grid.dkt))
         for deltaifreq in range (-2,3,1):
             ifreqout=ifreqin+deltaifreq
             if(ifreqout>=0):
                 omegaout = self.grid.kt[ifreqout]
-                name = ("%s-%s-kx-ky-at-omega%4.2f.txt" % (self.basename, appendix, omegaout))
+                name = ("%s-t%3.0f-kx-ky-at-omega%4.2f.txt" % (varname,self.tcenter, omegaout))
                 f1 = open(name, 'w')
                 for j in range(0, self.grid.ky.size):
                     for i in range(0, self.grid.Nkx):
@@ -353,10 +354,10 @@ class FieldAnalysis:
                     f1.write("\n")
                 f1.close()
 
-    def saveNewData(self, timein, appendix=""):
+    def saveNewData(self, timein, varname):
 
         itime = int(round(timein/self.grid.dt))
-        name = ("%s-%s-x-y.txt" % (self.basename, appendix))
+        name = ("%s-t%3.0f-x-y.txt" % (varname,self.tcenter))
         f1 = open(name, 'w')
         for j in range(0, self.grid.Ny):
             for i in range(0, self.grid.Nx):

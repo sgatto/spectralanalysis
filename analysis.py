@@ -31,10 +31,10 @@ def run(args):
 
     deltaT = 20
 
-    mynames    = ("B_FIELD_", "E_FIELD_", "E_FIELD_",	"DENS_eleBulk_", "DENS_proBulk_")
-    subs       = (	 5  ,      5    ,    	5   ,	      5        ,      1         )
-    components = (	 2  ,      0    ,    	1   ,	      0        ,      0         )
-    varnames   = (    "fftBz",   "fftEx",   "fftEy",	        "fftne",         "fftnp")
+    mynames    = ("B_FIELD_", "E_FIELD_", "E_FIELD_","DENS_eleBulk_", "DENS_proBulk_")
+    subs       = (	    5   ,      5    ,    	5   ,      5        ,      1         )
+    components = (	    2   ,      0    ,    	1   ,      0        ,      0         )
+    varnames   = (    "Bz"  ,    "Ex"   ,     "Ey"  ,     "ne"      ,     "np"       )
     #myname = "DENS_eleBulk_"
     #myname = "B_FIELD_"
     #component = 2
@@ -45,7 +45,7 @@ def run(args):
         component = components[contatore]
         varname   = varnames[contatore]
 
-        name = ("energy-evolution-%s-component%s.txt" % (myname, str(component)))
+        name = ("%s-energy-evolution.txt" % (varname))
         myfile = open(name, 'a')
         if (mystart<=0):
             myfile.write("#1time,   2Etot,  3EOmega2\n")
@@ -60,12 +60,12 @@ def run(args):
             myanalysis.collect_data()
             myanalysis.setWindow()
             myanalysis.do_fft(zposition=0, comp=component)
-            myanalysis.saveVTK3Dfft(varname, str(component))
-            myanalysis.saveKxOmega(str(component))
+            myanalysis.saveVTK3Dfft(varname)
+            myanalysis.saveKxOmega(varname)
             if(sub>1):
-                myanalysis.saveKxKyatomega(2,str(component))
-                myanalysis.saveKxKyatomega(1,str(component))
-            myanalysis.saveKxKyatomega(0,str(component))
+                myanalysis.saveKxKyatomega(2,varname)
+                myanalysis.saveKxKyatomega(1,varname)
+            myanalysis.saveKxKyatomega(0,varname)
             myanalysis.printEnergy(zposition=0, comp=component)
             if(sub>1):
                 myanalysis.setAllToZeroExceptOmega(2)
