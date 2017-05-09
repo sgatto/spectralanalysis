@@ -88,7 +88,7 @@ parser.add_argument('-tstart', type=int, dest='mytstart', required=True,
                     help='the first time of the analysis')
 parser.add_argument('-tstop', type=int, dest='mytstop', default=-10,
                     help='the last time to analize')
-parser.add_argument('-cstart', type=int, dest='mytstart', required=True, help='integer first component to analize')
+parser.add_argument('-cstart', type=int, dest='mycstart', required=True, help='integer first component to analize')
 parser.add_argument('-cstop', type=int, dest='mycstop', default=-10, help='integer last component to analize')
 args = parser.parse_args()
 run(args)
