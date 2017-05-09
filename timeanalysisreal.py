@@ -303,7 +303,7 @@ class FieldAnalysis:
         f1.close()
 
     def saveVTK3Dfft(self, varname):
-        name = ("%s-t%3.0f-fft3D.vtk" % (varname,self.tcenter))
+        name = ("%s-t%#03.0f-fft3D.vtk" % (varname,self.tcenter))
         factor = 2.*np.pi*0.00318
         writeLengthNt = (self.grid.Nkt/2)
         totPts = self.grid.Nkx * self.grid.Nky * writeLengthNt
@@ -328,7 +328,7 @@ class FieldAnalysis:
 
 
     def saveKxOmega(self, varname):
-        name = ("%s-t%3.0f-kx-omega.txt" % (varname,self.tcenter))
+        name = ("%s-t%#03.0f-kx-omega.txt" % (varname,self.tcenter))
         writeLengthNt = (self.grid.Nkt/2)
 
         f1 = open(name, 'w')
@@ -346,7 +346,7 @@ class FieldAnalysis:
             ifreqout=ifreqin+deltaifreq
             if(ifreqout>=0):
                 omegaout = self.grid.kt[ifreqout]
-                name = ("%s-t%3.0f-kx-ky-at-omega%4.2f.txt" % (varname,self.tcenter, omegaout))
+                name = ("%s-t%#03.0f-kx-ky-at-omega%4.2f.txt" % (varname,self.tcenter, omegaout))
                 f1 = open(name, 'w')
                 for j in range(0, self.grid.ky.size):
                     for i in range(0, self.grid.Nkx):
@@ -357,7 +357,7 @@ class FieldAnalysis:
     def saveNewData(self, timein, varname):
 
         itime = int(round(timein/self.grid.dt))
-        name = ("%s-t%3.0f-x-y.txt" % (varname,self.tcenter))
+        name = ("%s-t%#03.0f-x-y.txt" % (varname,self.tcenter))
         f1 = open(name, 'w')
         for j in range(0, self.grid.Ny):
             for i in range(0, self.grid.Nx):
