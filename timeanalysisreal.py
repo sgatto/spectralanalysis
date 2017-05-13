@@ -378,7 +378,7 @@ class FieldAnalysis:
                 if t > 0:
                     energyAtOmega += np.tensordot(self.trasf3D[self.grid.Nkt-t,:, :],self.trasf3D[self.grid.Nkt-t,:, :].conjugate(),axes=2)
 
-        return energyAtOmega*factor
+        return np.absolute(energyAtOmega)*factor
 
     def setAllToZeroExceptOmega(self, omegain):
 
@@ -391,7 +391,7 @@ class FieldAnalysis:
                 self.trasf3D[t,:, :] = 0
                 if t > 0:
                     self.trasf3D[self.grid.Nkt-t,:, :] = 0
-                
+
         self.shiftedTrasf3D = np.fft.fftshift(self.trasf3D, axes=(1,2))
 
     def setToZeroOmega(self, omegain):
