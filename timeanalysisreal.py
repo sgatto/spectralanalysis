@@ -269,6 +269,19 @@ class FieldAnalysis:
         print "totalEnergyFunction=" + str(self.totalEnergyFunction) + "   totalEnergyFFT=" + str(self.totalEnergyFFT)
         print "Efft/Einit=" + str(self.totalEnergyFFT/self.totalEnergyFunction)
 
+    def getEnergyAtOmega(self, omegain):
+
+        ifreqin = int(round(omegain/self.grid.dkt))
+        print "ifreqin=" + str(ifreqin) + " omegain=" + str(omegain)
+        omegaout = self.grid.kt[ifreqin]
+        print " omegaout=" + str(omegaout)
+        energyAtOmega=0
+        for t in range(0, self.grid.Nkt/2):
+            if abs(t-ifreqin)<=1:
+                energyAtOmega+=np.tensordot(self.trasf3D[t,:, :],self.trasf3D[t,:, :],axes=([0,1],[0,1]))
+                if t > 0:
+                    energyAtOmega+=np.tensordot(self.trasf3D[self.grid.Nkt-t,:, :],self.trasf3D[self.grid.Nkt-t,:, :],axes=([0,1],[0,1]))
+        return energyAtOmega
 
     def do_fft(self, zposition, comp):
         print ("ready for fft3D...")

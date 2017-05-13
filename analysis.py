@@ -67,13 +67,17 @@ def run(args):
                 myanalysis.saveKxKyatomega(1,varname)
             myanalysis.saveKxKyatomega(0,varname)
             myanalysis.printEnergy(zposition=0, comp=component)
+            energyAtOmega1=0
+            energyAtOmega2=0
             if(sub>1):
+                energyAtOmega1=getEnergyAtOmega(1)
+                energyAtOmega2=getEnergyAtOmega(2)
                 if(component==2):
                     myanalysis.setAllToZeroExceptOmega(2)
                 else:
                     myanalysis.setAllToZeroExceptOmega(1)
             myanalysis.printEnergy(zposition=0, comp=component)
-            myfile.write("%e, %e, %e\n" % (centertime, myanalysis.totalEnergyFunction, myanalysis.totalEnergyFFT))
+            myfile.write("%e, %e, %e, %e\n" % (centertime, myanalysis.totalEnergyFunction, myanalysis.totalEnergyFFT, energyAtOmega1,energyAtOmega2)
         myfile.close()
 
 
