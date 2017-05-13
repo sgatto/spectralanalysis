@@ -388,7 +388,7 @@ class FieldAnalysis:
         print "ifreqin=" + str(ifreqin) + " omegain=" + str(omegain)
         omegaout = self.grid.kt[ifreqin]
         print " omegaout=" + str(omegaout)
-        for t in range(0, self.grid.Nkt/2):
+        for t in range(0, self.grid.Nkt/2+1):
             if abs(t-ifreqin)>1:
                 self.trasf3D[t,:, :] = 0
                 print "azzero ifreq=" + str(t)
@@ -401,7 +401,7 @@ class FieldAnalysis:
     def setToZeroOmega(self, omegain):
 
         ifreqin = int(round(omegain/self.grid.dkt))
-        for t in range(0, self.grid.Nkt/2):
+        for t in range(0, self.grid.Nkt/2+1):
             if abs(t-ifreqin)<=1:
                 self.shiftedTrasf3D[t,:, :] = 0
                 self.trasf3D[t,:, :] = 0
