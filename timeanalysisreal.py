@@ -269,24 +269,6 @@ class FieldAnalysis:
         print "totalEnergyFunction=" + str(self.totalEnergyFunction) + "   totalEnergyFFT=" + str(self.totalEnergyFFT)
         print "Efft/Einit=" + str(self.totalEnergyFFT/self.totalEnergyFunction)
 
-    def getEnergyAtOmega(self, omegain):
-
-        ifreqin = int(round(omegain/self.grid.dkt))
-        print ">>>>>>>ifreqin=" + str(ifreqin) + " omegain=" + str(omegain)
-        omegaout = self.grid.kt[ifreqin]
-        print " omegaout=" + str(omegaout)
-        factor = 8.0/(3.0*self.grid.Nt)*(self.grid.dx * self.grid.dy*2) / (8*math.pi)
-        energyAtOmega=0
-        for t in range(0, self.grid.Nkt/2):
-            if abs(t-ifreqin)<=1:
-                energyAtOmega+=factor * np.absolute(np.tensordot(self.trasf3D[t,:, :],self.trasf3D[t,:, :].conjugate(),axes=2))
-                print "considero ifreq=" + str(t)
-                if t > 0:
-                    energyAtOmega+=factor * np.absolute(np.tensordot(self.trasf3D[self.grid.Nkt-t,:, :],self.trasf3D[self.grid.Nkt-t,:, :],axes=2))
-                    print "considero ifreq=" + str(self.grid.Nkt-t)
-
-        return energyAtOmega
-
     def do_fft(self, zposition, comp):
         print ("ready for fft3D...")
         dataselect = self.alldata[:, zposition, :, :, comp]
@@ -381,6 +363,24 @@ class FieldAnalysis:
                 f1.write("%e, %e, %e\n" % (self.x[i], self.y[j], (self.mynewData[itime,j, i]) ) )
             f1.write("\n")
         f1.close()
+
+    def getEnergyAtOmega(self, omegain):
+
+        ifreqin = int(round(omegain/self.grid.dkt))
+        print ">>>>>>>ifreqin=" + str(ifreqin) + " omegain=" + str(omegain)
+        omegaout = self.grid.kt[ifreqin]
+        print " omegaout=" + str(omegaout)
+        factor = 8.0/(3.0*self.grid.Nt)*(self.grid.dx * self.grid.dy*2) / (8*math.pi)
+        energyAtOmega=0
+        for t in range(0, self.grid.Nkt/2):
+            if abs(t-ifreqin)<=1:
+                energyAtOmega += np.tensordot(self.trasf3D[t,:, :],self.trasf3D[t,:, :].conjugate(),axes=2)
+                print "considero ifreq=" + str(t)
+                if t > 0:
+                    energyAtOmega += np.tensordot(self.trasf3D[self.grid.Nkt-t,:, :],self.trasf3D[self.grid.Nkt-t,:, :].conjugate(),axes=2)
+                    print "considero ifreq=" + str(self.grid.Nkt-t)
+
+        return energyAtOmega*factor
 
     def setAllToZeroExceptOmega(self, omegain):
 
