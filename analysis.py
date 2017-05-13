@@ -70,8 +70,8 @@ def run(args):
             energyAtOmega1=0
             energyAtOmega2=0
             if(sub>1):
-                energyAtOmega1=getEnergyAtOmega(1)
-                energyAtOmega2=getEnergyAtOmega(2)
+                energyAtOmega1=myanalysis.getEnergyAtOmega(1)
+                energyAtOmega2=myanalysis.getEnergyAtOmega(2)
                 if(component==2):
                     myanalysis.setAllToZeroExceptOmega(2)
                 else:
