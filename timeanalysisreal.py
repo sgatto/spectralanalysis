@@ -279,7 +279,7 @@ class FieldAnalysis:
         energyAtOmega=0
         for t in range(0, self.grid.Nkt/2):
             if abs(t-ifreqin)<=1:
-                energyAtOmega+=factor * np.absolute(np.tensordot(self.trasf3D[t,:, :],self.trasf3D[t,:, :],axes=([0,1],[0,1])))
+                energyAtOmega+=factor * np.absolute(np.tensordot(self.trasf3D[t,:, :],self.trasf3D[t,:, :].conjugate(),axes=([0,1],[0,1])))
                 if t > 0:
                     energyAtOmega+=factor * np.absolute(np.tensordot(self.trasf3D[self.grid.Nkt-t,:, :],self.trasf3D[self.grid.Nkt-t,:, :],axes=([0,1],[0,1])))
         return energyAtOmega
