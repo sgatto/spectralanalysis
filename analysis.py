@@ -48,7 +48,7 @@ def run(args):
         name = ("%s-energy-evolution.txt" % (varname))
         myfile = open(name, 'a')
         if (mystart<=0):
-            myfile.write("#1time,   2Etot,  3EOmega?,  4EOmega1,  5EOmega2\n")
+            myfile.write("#1time,   2Etot,  3EOmega1,  4EOmega2\n")
 
         for start in range(mystart, mystop, 50):
             basetime = start-deltaT*0.5
@@ -72,12 +72,7 @@ def run(args):
             if(sub>1):
                 energyAtOmega1=myanalysis.getEnergyAtOmega(1)
                 energyAtOmega2=myanalysis.getEnergyAtOmega(2)
-                if(component==2):
-                    myanalysis.setAllToZeroExceptOmega(2)
-                else:
-                    myanalysis.setAllToZeroExceptOmega(1)
-            myanalysis.printEnergy(zposition=0, comp=component)
-            myfile.write("%e, %e, %e, %e, %e\n" % (centertime, myanalysis.totalEnergyFunction, myanalysis.totalEnergyFFT, energyAtOmega1,energyAtOmega2))
+            myfile.write("%e, %e, %e, %e\n" % (centertime, myanalysis.totalEnergyFunction, energyAtOmega1,energyAtOmega2))
         myfile.close()
 
 
