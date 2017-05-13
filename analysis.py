@@ -77,7 +77,7 @@ def run(args):
                 else:
                     myanalysis.setAllToZeroExceptOmega(1)
             myanalysis.printEnergy(zposition=0, comp=component)
-            myfile.write("%e, %e, %e, %e\n" % (centertime, myanalysis.totalEnergyFunction, myanalysis.totalEnergyFFT, energyAtOmega1,energyAtOmega2)
+            myfile.write("%e, %e, %e, %e, %e\n" % (centertime, myanalysis.totalEnergyFunction, myanalysis.totalEnergyFFT, energyAtOmega1,energyAtOmega2))
         myfile.close()
 
 
