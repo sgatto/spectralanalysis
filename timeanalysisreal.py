@@ -375,10 +375,8 @@ class FieldAnalysis:
         for t in range(0, self.grid.Nkt/2):
             if abs(t-ifreqin)<=1:
                 energyAtOmega += np.tensordot(self.trasf3D[t,:, :],self.trasf3D[t,:, :].conjugate(),axes=2)
-                print "considero ifreq=" + str(t)
                 if t > 0:
                     energyAtOmega += np.tensordot(self.trasf3D[self.grid.Nkt-t,:, :],self.trasf3D[self.grid.Nkt-t,:, :].conjugate(),axes=2)
-                    print "considero ifreq=" + str(self.grid.Nkt-t)
 
         return energyAtOmega*factor
 
@@ -391,11 +389,9 @@ class FieldAnalysis:
         for t in range(0, self.grid.Nkt/2+1):
             if abs(t-ifreqin)>1:
                 self.trasf3D[t,:, :] = 0
-                print "azzero ifreq=" + str(t)
                 if t > 0:
                     self.trasf3D[self.grid.Nkt-t,:, :] = 0
-                    print "azzero ifreq=" + str(self.grid.Nkt-t)
-
+                
         self.shiftedTrasf3D = np.fft.fftshift(self.trasf3D, axes=(1,2))
 
     def setToZeroOmega(self, omegain):

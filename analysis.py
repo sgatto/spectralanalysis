@@ -48,7 +48,7 @@ def run(args):
         name = ("%s-energy-evolution.txt" % (varname))
         myfile = open(name, 'a')
         if (mystart<=0):
-            myfile.write("#1time,   2Etot,  3EOmega2\n")
+            myfile.write("#1time,   2Etot,  3EOmega?,  4EOmega1,  5EOmega2\n")
 
         for start in range(mystart, mystop, 50):
             basetime = start-deltaT*0.5
