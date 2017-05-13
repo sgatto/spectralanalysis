@@ -391,8 +391,11 @@ class FieldAnalysis:
         for t in range(0, self.grid.Nkt/2):
             if abs(t-ifreqin)>1:
                 self.trasf3D[t,:, :] = 0
+                print "azzero ifreq=" + str(t)
                 if t > 0:
                     self.trasf3D[self.grid.Nkt-t,:, :] = 0
+                    print "azzero ifreq=" + str(self.grid.Nkt-t)
+
         self.shiftedTrasf3D = np.fft.fftshift(self.trasf3D, axes=(1,2))
 
     def setToZeroOmega(self, omegain):
