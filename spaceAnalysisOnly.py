@@ -70,8 +70,6 @@ class FieldAnalysis:
 
     def __init__(self, filename):
         self.grid=mygrid()
-        self.base = base
-        self.end = end
         self.filename = filename
 
         self.totalEnergyFunction = 0
@@ -81,12 +79,13 @@ class FieldAnalysis:
         self.print_parameters()
         self.set_frequency()
         self.print_frequency()
+        self.collect_data()
 
     def collect_data(self):
         self.alldata = np.zeros((self.grid.Nz, self.grid.Ny, self.grid.Nx, self.Nc))
         self.alldata = self.analize_field(self.filename)
 
-    def analize_field(self, filename):
+    def analize_field(self, filename, analize=False):
         f = open(filename, 'rb')
         # - endianness 0:small - 1:big -#
 
@@ -114,6 +113,8 @@ class FieldAnalysis:
         self.grid.Nz = nz
         self.Nc = nc
 
+        print nx, ny, nz, nc
+
         # - grid -> X -#
         # x = np.zeros((Nx))
         # for i in range(0,Nx):
@@ -129,9 +130,14 @@ class FieldAnalysis:
         self.z = z
         # - loop on processors -#
         F = np.zeros((nz, ny, nx, nc))
+
+        print "nproc=", nproc
         counter = 0
         prog = 0.0
+        if(analize):
+            return 0
         for nprocessor in range(0, nproc):
+            print "proc = ", nprocessor
             # -processor dims -#
             i0 = struct.unpack('i', f.read(4))[0]
             j0 = struct.unpack('i', f.read(4))[0]
@@ -157,7 +163,7 @@ class FieldAnalysis:
         return F
 
     def init_values(self):
-        self.analize_field(self.filename)
+        self.analize_field(self.filename, analize=True)
 
         if self.grid.Nx > 1:
             self.grid.dx = self.x[1] - self.x[0]
@@ -179,7 +185,7 @@ class FieldAnalysis:
 
     def print_parameters(self):
         print ("Start Analysis:")
-        print ("base name = %s" %self.basename)
+        print ("filename = %s" %self.filename)
         print ("SIZE: [ Lx, Ly, Lz ] = [ %.3f, %.3f, %.3f ]" % (self.grid.Lx, self.grid.Ly, self.grid.Lz))
         print (" Np : [ Nx, Ny, Nz ] = [ %d, %d, %d ]" % (self.grid.Nx, self.grid.Ny, self.grid.Nz))
 
@@ -217,7 +223,7 @@ class FieldAnalysis:
         self.trasf3D = np.fft.fftn(dataselect, axes=(0,1))
 #        self.trasf3D = self.trasf3D/math.sqrt(self.grid.Nx*self.grid.Ny)
 
-        self.shiftedTrasf3D = np.fft.fftshift(self.trasf3D, axes=(1,2))
+        self.shiftedTrasf3D = np.fft.fftshift(self.trasf3D, axes=(0,1))
 
         print ("DONE fft3D")
 
@@ -228,13 +234,13 @@ class FieldAnalysis:
         self.mynewData = self.mynewData*math.sqrt(self.grid.Nx*self.grid.Ny)
         print ("DONE ifft3D")
 
-    def save3Dfft(self):
-        name = ("%s-3D-fft.txt" % (self.basename,))
+    def saveffttxt(self, varname):
+        name = ("%s-2D-fft.txt" % (varname))
 
         f1 = open(name, 'w')
         for j in range(0, self.grid.Nky):
             for i in range(0, self.grid.Nkx):
-                f1.write("%e, %e, %e\n" % (self.grid.kx[i], self.grid.ky[j], np.absolute(self.shiftedTrasf3D[j, i]) ) )
+                f1.write("%.3e, %.3e, %.3e\n" % (self.grid.kx[i], self.grid.ky[j], np.absolute(self.shiftedTrasf3D[j, i]) ) )
         # np.savetxt( "kx-omega.txt" ,np.real(self.trasf[:,:,0]),fmt='%15.14e')
         f1.close()
 
@@ -244,7 +250,7 @@ class FieldAnalysis:
         f1 = open(name, 'w')
         for j in range(0, self.grid.Ny):
             for i in range(0, self.grid.Nx):
-                f1.write("%e, %e, %e\n" % (self.x[i], self.y[j], (self.mynewData[itime,j, i]) ) )
+                f1.write("%.3e, %.3e, %.3e\n" % (self.x[i], self.y[j], (self.mynewData[itime,j, i]) ) )
             f1.write("\n")
         f1.close()
 

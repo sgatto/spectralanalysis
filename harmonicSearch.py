@@ -26,12 +26,12 @@ def run(args):
     #print 'Number of arguments:', len(sys.argv), 'arguments.'
     #print 'Argument List:', str(sys.argv)
 
-    myname = "B_FIELD_subd1_1_035.000.bin.000"
+    myname = "B_FIELD_subd1_1_035.000.bin_2.newbin"
     myanalysis = FieldAnalysis(filename=myname)
     myanalysis.do_fft(zposition=0, comp=mycomp)
     myanalysis.saveffttxt(varname=myname)
 
-    
+
 
 
 
