@@ -234,15 +234,24 @@ class FieldAnalysis:
         self.mynewData = self.mynewData*math.sqrt(self.grid.Nx*self.grid.Ny)
         print ("DONE ifft3D")
 
-    def saveffttxt(self, varname):
+    def saveffttxt(self, varname, kxmin=-40, kxmax=0, kymin=-10, kymax=40):
         name = ("%s-2D-fft.txt" % (varname))
 
+        print ("ready for printin on %s..." %(name))
+        ikmin = np.maximum((int)((kxmin - self.grid.kx[0])/self.grid.dkx), 0)
+        ikmax = np.minimum((int)((kxmax - self.grid.kx[0])/self.grid.dkx), self.grid.Nkx)
+        jkmin = np.maximum((int)((kymin - self.grid.ky[0])/self.grid.dky), 0)
+        jkmax = np.minimum((int)((kymax - self.grid.ky[0])/self.grid.dky), self.grid.Nky)
+
+        print "self.grid.Nkx = ", self.grid.Nkx, "   self.grid.Nky = ", self.grid.Nky
+        print "ikmin = ", ikmin, "   ikmax = ", ikmax, "   jkmin = ", jkmin, "   jkmax = ", jkmax
         f1 = open(name, 'w')
-        for j in range(0, self.grid.Nky):
-            for i in range(0, self.grid.Nkx):
-                f1.write("%.3e, %.3e, %.3e\n" % (self.grid.kx[i], self.grid.ky[j], np.absolute(self.shiftedTrasf3D[j, i]) ) )
+        for j in range(jkmin, jkmax):
+            for i in range(ikmin, ikmax):
+                f1.write("%.3e, %.3e, %.3e\n" % (self.grid.kx[i], self.grid.ky[j], (np.absolute(self.shiftedTrasf3D[j, i]))**2 ))
         # np.savetxt( "kx-omega.txt" ,np.real(self.trasf[:,:,0]),fmt='%15.14e')
         f1.close()
+        print ("DONE for printin on %s..." %(name))
 
     def saveNewData(self, varname):
 
@@ -269,3 +278,79 @@ class FieldAnalysis:
                     energyAtOmega += np.tensordot(self.trasf3D[self.grid.Nkt-t,:, :],self.trasf3D[self.grid.Nkt-t,:, :].conjugate(),axes=2)
 
         return np.absolute(energyAtOmega)*factor
+
+    def createCone(self,nmax,phimin, phimax, nbin):
+
+        print ("creating conditions for the cone...")
+
+        self.nbin = nbin
+        self.plotCone = np.zeros(self.nbin)
+        self.nmax = nmax
+        self.nmin = 0
+        self.dkn = nmax*1.0/self.nbin
+        self.kns = np.arange(0, self.nmax, self.dkn)
+        self.phimin = (phimin + 90.0)/180.*np.pi
+        self.phimax = (phimax + 90.0)/180.*np.pi
+        print "phimin = ", phimin, "   phimax = ", phimax, "   nmax = ", nmax
+        print "self.phimin = ", self.phimin, "   self.phimax = ", self.phimax, "   self.nmax = ", self.nmax
+
+
+    def analiseCone(self):
+
+        print ("start analysis of the cone...")
+
+        for j in range(0, self.grid.Nky):
+            ky = self.grid.ky[j]
+            for i in range(0, self.grid.Nkx):
+                kx = self.grid.kx[i]
+
+                phi = np.arctan2(ky, kx)
+                if self.phimin <= phi <= self.phimax:
+                    kr = math.sqrt(kx*kx + ky*ky)
+                    ikn = int(kr/self.dkn + 0.5)
+                    if ikn < self.nbin:
+                        self.plotCone[ikn] += (np.absolute(self.shiftedTrasf3D[j, i]))**2
+        print ("DONE")
+
+
+    def analiseConeAndPrint(self, varname, kxmin=-40, kxmax=0, kymin=-10, kymax=40):
+
+        print ("start analysis of the cone and print new 2D file...")
+
+        ikmin = np.maximum((int)((kxmin - self.grid.kx[0])/self.grid.dkx), 0)
+        ikmax = np.minimum((int)((kxmax - self.grid.kx[0])/self.grid.dkx), self.grid.Nkx)
+        jkmin = np.maximum((int)((kymin - self.grid.ky[0])/self.grid.dky), 0)
+        jkmax = np.minimum((int)((kymax - self.grid.ky[0])/self.grid.dky), self.grid.Nky)
+
+        print "self.grid.Nkx = ", self.grid.Nkx, "   self.grid.Nky = ", self.grid.Nky
+        print "ikmin = ", ikmin, "   ikmax = ", ikmax, "   jkmin = ", jkmin, "   jkmax = ", jkmax
+
+        name = ("%s-%.1f-%.1f-2DFFT.txt" % (varname, self.phimin, self.phimax))
+        f1 = open(name, 'w')
+
+        for j in range(jkmin, jkmax):
+            ky = self.grid.ky[j]
+            for i in range(ikmin, ikmax):
+                kx = self.grid.kx[i]
+
+                phi = np.arctan2(ky, kx)
+                if self.phimin <= phi <= self.phimax:
+                    kr = math.sqrt(kx*kx + ky*ky)
+                    ikn = int(kr/self.dkn + 0.5)
+                    if ikn < self.nbin:
+                        self.plotCone[ikn] += (np.absolute(self.shiftedTrasf3D[j, i]))**2
+                    f1.write("%.3e, %.3e, %.3e\n" % (kx, ky, (np.absolute(self.shiftedTrasf3D[j, i]))**2 ) )
+                else:
+                    f1.write("%.3e, %.3e, %.3e\n" % (kx, ky, 0 ))
+        print ("DONE")
+
+
+    def printConeAnalysis(self, varname):
+
+        print ("print analysis...")
+        name = ("%s-%.1f-%.1f.txt" % (varname, self.phimin, self.phimax))
+        f1 = open(name, 'w')
+
+        for i in range(0,self.nbin):
+            f1.write("%.3e, %.3e\n" % (self.kns[i], self.plotCone[i]) )
+        print ("done")

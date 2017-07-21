@@ -26,12 +26,18 @@ def run(args):
     #print 'Number of arguments:', len(sys.argv), 'arguments.'
     #print 'Argument List:', str(sys.argv)
 
-    myname = "B_FIELD_subd1_1_035.000.bin_2.newbin"
+    myname = args.myname
     myanalysis = FieldAnalysis(filename=myname)
     myanalysis.do_fft(zposition=0, comp=mycomp)
-    myanalysis.saveffttxt(varname=myname)
+    myanalysis.saveffttxt(varname=myname, kxmin=-40, kxmax=0, kymin=-10, kymax=40)
 
+    myanalysis.createCone(nmax=40,phimin=5.5, phimax=10.5, nbin=400)
+    myanalysis.analiseConeAndPrint(varname=myname, kxmin=-40, kxmax=0, kymin=-10, kymax=40)
+    myanalysis.printConeAnalysis(varname=myname)
 
+    myanalysis.createCone(nmax=40,phimin=2, phimax=12, nbin=400)
+    myanalysis.analiseConeAndPrint(varname=myname, kxmin=-40, kxmax=0, kymin=-10, kymax=40)
+    myanalysis.printConeAnalysis(varname=myname)
 
 
 
@@ -43,6 +49,8 @@ parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpForm
         loop on components (0:x 1:y 2:z)
 
         '''))
+parser.add_argument('-i', type=str, dest='myname', required=True,
+                    help='filename of the file to be analised')
 parser.add_argument('-xmin', type=float, dest='myxmin', default=-1e5,
                     help='xmin of the box to be analysed')
 parser.add_argument('-xmax', type=float, dest='myxmax', default=1e5,
