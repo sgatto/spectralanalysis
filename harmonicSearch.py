@@ -29,16 +29,21 @@ def run(args):
     myname = args.myname
     myanalysis = FieldAnalysis(filename=myname)
     myanalysis.do_fft(zposition=0, comp=mycomp)
-    myanalysis.saveffttxt(varname=myname, kxmin=-40, kxmax=0, kymin=-10, kymax=40)
+    grande=40
+    piccolo=0
+    myanalysis.saveffttxt(varname=myname, kxmin=-1*grande, kxmax=0, kymin=-1.*piccolo, kymax=grande)
 
-    myanalysis.createCone(nmax=40,phimin=5.5, phimax=10.5, nbin=400)
-    myanalysis.analiseConeAndPrint(varname=myname, kxmin=-40, kxmax=0, kymin=-10, kymax=40)
+    myanalysis.createCone(nmax=40,phimin=40, phimax=50, nbin=400)
+    myanalysis.analiseConeAndPrint(varname=myname, kxmin=-1*grande, kxmax=0, kymin=-1.*piccolo, kymax=grande)
     myanalysis.printConeAnalysis(varname=myname)
 
-    myanalysis.createCone(nmax=40,phimin=2, phimax=12, nbin=400)
-    myanalysis.analiseConeAndPrint(varname=myname, kxmin=-40, kxmax=0, kymin=-10, kymax=40)
+    myanalysis.createCone(nmax=40,phimin=42.5, phimax=47.5, nbin=400)
+    myanalysis.analiseConeAndPrint(varname=myname, kxmin=-1*grande, kxmax=0, kymin=-1.*piccolo, kymax=grande)
     myanalysis.printConeAnalysis(varname=myname)
 
+    myanalysis.createCone(nmax=40,phimin=44, phimax=46, nbin=400)
+    myanalysis.analiseConeAndPrint(varname=myname, kxmin=-1*grande, kxmax=0, kymin=-1.*piccolo, kymax=grande)
+    myanalysis.printConeAnalysis(varname=myname)
 
 
 

@@ -131,7 +131,7 @@ class FieldAnalysis:
         # - loop on processors -#
         F = np.zeros((nz, ny, nx, nc))
 
-        print "nproc=", nproc
+        print "nprocs=", nproc
         counter = 0
         prog = 0.0
         if(analize):
@@ -289,6 +289,8 @@ class FieldAnalysis:
         self.nmin = 0
         self.dkn = nmax*1.0/self.nbin
         self.kns = np.arange(0, self.nmax, self.dkn)
+        self.gradphimin = phimin
+        self.gradphimax = phimax
         self.phimin = (phimin + 90.0)/180.*np.pi
         self.phimax = (phimax + 90.0)/180.*np.pi
         print "phimin = ", phimin, "   phimax = ", phimax, "   nmax = ", nmax
@@ -298,7 +300,9 @@ class FieldAnalysis:
     def analiseCone(self):
 
         print ("start analysis of the cone...")
+        print "self.phimin = ", self.phimin, "   self.phimax = ", self.phimax, "   self.nmax = ", self.nmax
 
+        self.plotCone[:] = 0
         for j in range(0, self.grid.Nky):
             ky = self.grid.ky[j]
             for i in range(0, self.grid.Nkx):
@@ -309,7 +313,7 @@ class FieldAnalysis:
                     kr = math.sqrt(kx*kx + ky*ky)
                     ikn = int(kr/self.dkn + 0.5)
                     if ikn < self.nbin:
-                        self.plotCone[ikn] += (np.absolute(self.shiftedTrasf3D[j, i]))**2
+                        self.plotCone[ikn] += ((np.absolute(self.shiftedTrasf3D[j, i]))**2)
         print ("DONE")
 
 
@@ -324,9 +328,12 @@ class FieldAnalysis:
 
         print "self.grid.Nkx = ", self.grid.Nkx, "   self.grid.Nky = ", self.grid.Nky
         print "ikmin = ", ikmin, "   ikmax = ", ikmax, "   jkmin = ", jkmin, "   jkmax = ", jkmax
+        print "self.phimin = ", self.phimin, "   self.phimax = ", self.phimax, "   self.nmax = ", self.nmax
 
-        name = ("%s-%.1f-%.1f-2DFFT.txt" % (varname, self.phimin, self.phimax))
+        name = ("%s-%.1f-%.1f-2DFFT.txt" % (varname, self.gradphimin, self.gradphimax))
         f1 = open(name, 'w')
+
+        self.plotCone[:] = 0
 
         for j in range(jkmin, jkmax):
             ky = self.grid.ky[j]
@@ -334,11 +341,11 @@ class FieldAnalysis:
                 kx = self.grid.kx[i]
 
                 phi = np.arctan2(ky, kx)
-                if self.phimin <= phi <= self.phimax:
+                if (phi >= self.phimin) and (phi <= self.phimax):
                     kr = math.sqrt(kx*kx + ky*ky)
                     ikn = int(kr/self.dkn + 0.5)
                     if ikn < self.nbin:
-                        self.plotCone[ikn] += (np.absolute(self.shiftedTrasf3D[j, i]))**2
+                        self.plotCone[ikn] += ((np.absolute(self.shiftedTrasf3D[j, i]))**2)
                     f1.write("%.3e, %.3e, %.3e\n" % (kx, ky, (np.absolute(self.shiftedTrasf3D[j, i]))**2 ) )
                 else:
                     f1.write("%.3e, %.3e, %.3e\n" % (kx, ky, 0 ))
@@ -348,7 +355,7 @@ class FieldAnalysis:
     def printConeAnalysis(self, varname):
 
         print ("print analysis...")
-        name = ("%s-%.1f-%.1f.txt" % (varname, self.phimin, self.phimax))
+        name = ("%s-%.1f-%.1f.txt" % (varname, self.gradphimin, self.gradphimax))
         f1 = open(name, 'w')
 
         for i in range(0,self.nbin):
