@@ -185,11 +185,13 @@ class FieldAnalysis:
             print ("error self.grid.Nt=%d len(self.filenames))=%d" %(self.grid.Nt, len(self.filenames)))
 
     def collect_data(self):
+        print "collecting data ..."
         self.alldata = np.zeros((self.grid.Nt, self.grid.Nz, self.grid.Ny, self.grid.Nx, self.Nc))
         for i in range(0, self.grid.Nt):
             # print self.filenames[i]
             F = self.analize_field(self.filenames[i])
             self.alldata[i, :, :, :, :] = F[:, :, :, :]
+        print "--- DONE ---"
 
     def setWindow(self):
         for i in range(0, self.grid.Nt):
