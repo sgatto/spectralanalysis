@@ -129,12 +129,15 @@ class FieldAnalysis:
 
         # - grid -> Y -#
         y = struct.unpack('f' * ny, f.read(4 * ny))
-        self.x = x
         # - grid -> Z -#
         z = struct.unpack('f' * nz, f.read(4 * nz))
         self.x = x
         self.y = y
         self.z = z
+        self.grid.x = x
+        self.grid.y = y
+        self.grid.z = z
+        
         # - loop on processors -#
         F = np.zeros((nz, ny, nx, nc))
         counter = 0
@@ -380,7 +383,7 @@ class FieldAnalysis:
 
         return np.absolute(energyAtOmega)*factor
 
-    def getEnergyAtOmega(self, omegain, kxmin=-1e10, kxmax=1e10, kymin=-1e10, kymax=1e10):
+    def getEnergyAtOmegaLimits(self, omegain, kxmin=-1e10, kxmax=1e10, kymin=-1e10, kymax=1e10):
 
         ifreqin = int(round(omegain/self.grid.dkt))
         print ">>>>>>>ifreqin=" + str(ifreqin) + " omegain=" + str(omegain)
@@ -392,15 +395,15 @@ class FieldAnalysis:
             if abs(t-ifreqin)<=1:
                 for j in range(0, self.grid.ky.size):
                     for i in range(0, self.grid.Nkx):
-                        if self.grid.kx[i] in range(kxmin, kxmax):
-                            if self.grid.ky[j] in range(kymin, kymax):
+                        if kxmin <= self.grid.kx[i] < kxmax:
+                            if kymin <= self.grid.ky[j] < kymax:
                                 energyAtOmega += np.absolute(self.shiftedTrasf3D[t,j, i])*np.absolute(self.shiftedTrasf3D[t,j, i])
                 if t > 0:
-                for j in range(0, self.grid.ky.size):
-                    for i in range(0, self.grid.Nkx):
-                        if self.grid.kx[i] in range(kxmin, kxmax):
-                            if self.grid.ky[j] in range(kymin, kymax):
-                                energyAtOmega += np.absolute(self.shiftedTrasf3D[self.grid.Nkt-t,j, i])*np.absolute(self.shiftedTrasf3D[self.grid.Nkt-t,j, i])
+                    for j in range(0, self.grid.ky.size):
+                        for i in range(0, self.grid.Nkx):
+                            if kxmin <= self.grid.kx[i] < kxmax:
+                                if kymin <= self.grid.ky[j] < kymax:
+                                    energyAtOmega += np.absolute(self.shiftedTrasf3D[self.grid.Nkt-t,j, i])*np.absolute(self.shiftedTrasf3D[self.grid.Nkt-t,j, i])
 
         return np.absolute(energyAtOmega)*factor
 
@@ -428,17 +431,17 @@ class FieldAnalysis:
                 self.trasf3D[-t,:, :] = 0
         self.shiftedTrasf3D = np.fft.fftshift(self.trasf3D, axes=(1,2))
 
-    def printTimeEvolutionAtPosition(self,x, y):
+    def printTimeEvolutionAtPosition(self,_x, _y, varname, comp):
         
-        _i = (x - self.grid.x[0] )/ self.grid.dx 
-        _j = (y - self.grid.y[0] )/ self.grid.dy 
+        print "writing field evolution at position (", _x, ", ", _y, " )"
+        _i = (_x - self.grid.x[0] )/ self.grid.dx 
+        _j = (_y - self.grid.y[0] )/ self.grid.dy 
         _k = 0
-        itime = int(round(timein/self.grid.dt))
-        name = ("%s-%g-%g-vs-t.txt" % (varname, x, y ))
+        name = ("%s-%g-%g-vs-t.txt" % (varname, _x, _y ))
         f1 = open(name, 'w')
         for itime in range(0, self.grid.Nt):
             myt = self.tmin + self.grid.dt*itime
-            f1.write("%e, %e, %e\n" % (myt, (self.alldata[itime, _j, _i]) ) )
+            f1.write("%e, %e\n" % (myt, (self.alldata[itime, 0,  _j, _i, comp]) ) )
         f1.close()
 
 
