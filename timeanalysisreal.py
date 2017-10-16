@@ -380,6 +380,30 @@ class FieldAnalysis:
 
         return np.absolute(energyAtOmega)*factor
 
+    def getEnergyAtOmega(self, omegain, kxmin=-1e10, kxmax=1e10, kymin=-1e10, kymax=1e10):
+
+        ifreqin = int(round(omegain/self.grid.dkt))
+        print ">>>>>>>ifreqin=" + str(ifreqin) + " omegain=" + str(omegain)
+        omegaout = self.grid.kt[ifreqin]
+        print " omegaout=" + str(omegaout)
+        factor = 8.0/(3.0*self.grid.Nt)*(self.grid.dx * self.grid.dy*2) / (8*math.pi)
+        energyAtOmega=0
+        for t in range(0, self.grid.Nkt/2):
+            if abs(t-ifreqin)<=1:
+                for j in range(0, self.grid.ky.size):
+                    for i in range(0, self.grid.Nkx):
+                        if self.grid.kx[i] in range(kxmin, kxmax):
+                            if self.grid.ky[j] in range(kymin, kymax):
+                                energyAtOmega += np.absolute(self.shiftedTrasf3D[t,j, i])*np.absolute(self.shiftedTrasf3D[t,j, i])
+                if t > 0:
+                for j in range(0, self.grid.ky.size):
+                    for i in range(0, self.grid.Nkx):
+                        if self.grid.kx[i] in range(kxmin, kxmax):
+                            if self.grid.ky[j] in range(kymin, kymax):
+                                energyAtOmega += np.absolute(self.shiftedTrasf3D[self.grid.Nkt-t,j, i])*np.absolute(self.shiftedTrasf3D[self.grid.Nkt-t,j, i])
+
+        return np.absolute(energyAtOmega)*factor
+
     def setAllToZeroExceptOmega(self, omegain):
 
         ifreqin = int(round(omegain/self.grid.dkt))
@@ -404,7 +428,21 @@ class FieldAnalysis:
                 self.trasf3D[-t,:, :] = 0
         self.shiftedTrasf3D = np.fft.fftshift(self.trasf3D, axes=(1,2))
 
+    def printTimeEvolutionAtPosition(self,x, y):
+        
+        _i = (x - self.grid.x[0] )/ self.grid.dx 
+        _j = (y - self.grid.y[0] )/ self.grid.dy 
+        _k = 0
+        itime = int(round(timein/self.grid.dt))
+        name = ("%s-%g-%g-vs-t.txt" % (varname, x, y ))
+        f1 = open(name, 'w')
+        for itime in range(0, self.grid.Nt):
+            myt = self.tmin + self.grid.dt*itime
+            f1.write("%e, %e, %e\n" % (myt, (self.alldata[itime, _j, _i]) ) )
+        f1.close()
 
+
+        
 
 # def run():
 #     print 'Number of arguments:', len(sys.argv), 'arguments.'
