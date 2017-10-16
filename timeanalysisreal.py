@@ -436,8 +436,8 @@ class FieldAnalysis:
     def printTimeEvolutionAtPosition(self,_x, _y, varname, comp):
         
         print "writing field evolution at position (", _x, ", ", _y, " )"
-        _i = (_x - self.grid.x[0] )/ self.grid.dx 
-        _j = (_y - self.grid.y[0] )/ self.grid.dy 
+        _i = int((_x - self.grid.x[0] )/ self.grid.dx )
+        _j = int((_y - self.grid.y[0] )/ self.grid.dy )
         _k = 0
         name = ("%s-%g-%g-vs-t.txt" % (varname, _x, _y ))
         f1 = open(name, 'w')
