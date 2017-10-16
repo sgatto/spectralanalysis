@@ -58,6 +58,12 @@ def run(args):
             centertime = 0.5*(basetime + endtime)
             myanalysis = FieldAnalysis(basetime, endtime, substeps=sub, base=myname, end=".bin.000")
             myanalysis.collect_data()
+            
+            for pippo in range (0,4):
+                xx = (pippo%2+1)*0.1
+                yy = ((pippo/2)%2 + 1) * 0.1
+                myanalysis.printTimeEvolutionAtPosition(xx, yy,varname, comp=component)
+            
             myanalysis.setWindow()
             myanalysis.do_fft(zposition=0, comp=component)
             myanalysis.saveVTK3Dfft(varname)
@@ -71,15 +77,11 @@ def run(args):
             energyAtOmega2=0
             energyAtOmega1_pos = 0
             energyAtOmega1_neg = 0
-            for pippo in range (0,4):
-                xx = (pippo%2+1)*0.1
-                yy = ((pippo/2)%2 + 1) * 0.1
-                printTimeEvolutionAtPosition(xx, yy)
             if(sub>1):
                 energyAtOmega1=myanalysis.getEnergyAtOmega(1)
                 energyAtOmega2=myanalysis.getEnergyAtOmega(2)
-                energyAtOmega1_pos = getEnergyAtOmega(, 1, kxmin=myanalysis.grid.dkx*2):
-                energyAtOmega1_neg = getEnergyAtOmega(, 1, kxmax=-myanalysis.grid.dkx*2):
+                energyAtOmega1_pos = myanalysis.getEnergyAtOmegaLimits( 1, kxmin=myanalysis.grid.dkx*2)
+                energyAtOmega1_neg = myanalysis.getEnergyAtOmegaLimits( 1, kxmax=-myanalysis.grid.dkx*2)
             myfile.write("%e, %e, %e, %e, %e, %e\n" % (centertime, myanalysis.totalEnergyFunction, energyAtOmega1,energyAtOmega2, energyAtOmega1_pos, energyAtOmega1_neg))
         myfile.close()
 
