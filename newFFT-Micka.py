@@ -1,135 +1,166 @@
-########################################################################################################################
-#                                                                                                                      #
-#                                                                                                                      #
-#                            SPATIAL / TEMPORAL & SPATIO-TEMPORAL FOURIER TRANSFORM TOOLS                              #
-#                                                                                                                      #
-#                                                                                                                      #
-########################################################################################################################
-import numpy as np
-
-
-# CONSTANT DEFINITION --------------------------------------------------------------------------------------------------
-_twopi    = 2.*np.pi
-_sq_twopi = np.sqrt(_twopi)
-
-
-
-# TEMPORAL FOURIER TRANSFORM -------------------------------------------------------------------------------------------
-
-# FORWARD
-def tFFT(t,ft):
-    # compute dft & axis
-    fw  = np.fft.rfft( np.concatenate((ft[0::-1],ft[-1:0:-1]),axis=0),norm="ortho")
-    w   = np.fft.rfftfreq(t.size,d=(t[1]-t[0])/ _twopi) 
-    # return axes & Fourier transform
-    return w, fw
-
-# BACKWARD
-def tFFT_inv(w,fw):
-    # compute inverse dft & axis
-    ft  = np.fft.irfft(fw,norm="ortho")
-    t   = np.fft.rfftfreq(w.size,d=(w[1]-w[0])/ _twopi)
-    ft = np.concatenate((ft[0::-1],ft[-1:0:-1]),axis=0)
-    # return axes & Fourier transform
-    return t, ft
-
-# 1D SPATIAL FOURIER TRANSFORM -----------------------------------------------------------------------------------------
-# FORWARD
-def sFFT1(x,f_x):
-    # compute dft & axis
-    f_k  = np.fft.rfft(f_x,norm="ortho")
-    k    = np.fft.rfftfreq(x.size,d=(x[1]-x[0])/ _twopi)
-    return k, f_k
-
-
-# BACKWARD
-def sFFT1_inv(k,f_k):
-    # compute inverse dft & axis
-    f_x  = np.fft.irfft(f_k,norm="ortho")
-    x    = np.fft.rfftfreq(k.size,d=(k[1]-k[0]) / _twopi)
-    return x, f_x
-
-
-
-# 2D SPATIAL FOURIER TRANSFORM -----------------------------------------------------------------------------------------
-
-# FORWARD
-def sFFT2(x,y,f):
-    # compute dft & axis
-    fkk   = np.fft.fft2(f)
-    kx    = np.fft.fftfreq(x.size,d=x[1]-x[0]) * _twopi
-    ky    = np.fft.fftfreq(y.size,d=y[1]-y[0]) * _twopi
-    Kx,Ky = np.meshgrid(kx,ky)
-    # add normalisation & phase-factor
-    fkk  *= (x[1]-x[0])*(y[1]-y[0])/_twopi * np.exp(-complex(0,1)*Kx*x[0]-complex(0,1)*Ky*y[0])
-    # shift ordering
-    kx   = np.fft.fftshift(kx)
-    ky   = np.fft.fftshift(ky)
-    fkk  = np.fft.fftshift(fkk)
-    return kx, ky, fkk
-
-# BACKWARD
-def sFFT2_inv(kx,ky,fkk):
-    # compute inverse dft & axis
-    f    = np.fft.ifft2(fkk)
-    x    = np.fft.fftfreq(kx.size,d=kx[1]-kx[0]) * _twopi
-    y    = np.fft.fftfreq(ky.size,d=ky[1]-ky[0]) * _twopi
-    X,Y  = np.meshgrid(x,y)
-    # add normalisation & phase-factor
-    f   *= kx.size*ky.size*(kx[1]-kx[0])*(ky[1]-ky[0])/_twopi * np.exp(-complex(0,1)*X*kx[0]-complex(0,1)*Y*ky[0])
-    # shift ordering
-    x    = np.fft.fftshift(x)
-    y    = np.fft.fftshift(y)
-    f_xy = np.fft.fftshift(f)
-    return x, y, f_xy
-
-
-####################################################################################### UNDER DEVELOPMENT (NOT YET WORKING)
-
-# 1D SPATIO-TEMPORAL FOURIER TRANSFORM ---------------------------------------------------------------------------------
-
-# FORWARD
-def STfft1(t,x,f_tx):
-    # compute dft & axis
-    f_wk  = np.fft.ifftn(f_tx, axes=(0,))
-    w     = np.fft.fftfreq(t.size,d=t[1]-t[0]) * _twopi
-    f_wk  = np.fft.fftn(f_wk, axes=(1,))
-    k     = np.fft.fftfreq(x.size,d=x[1]-x[0]) * _twopi
-    W,K   = np.meshgrid(w,k)
-    # add normalisation & phase-factor
-    f_wk *= (t[1]-t[0])*(x[1]-x[0])/_twopi # * np.exp(complex(0,1)*W*t[0]-complex(0,1)*K*x[0])
-    # shift ordering
-    #w    = np.fft.fftshift(w)
-    k    = np.fft.fftshift(k)
-    f_wk = np.fft.fftshift(f_wk, axes=(1,))
-    # return axes & Fourier transform
-    return w, k, f_wk
-
-# FORWARD
-def STfft2(t,x,y,f_tx):
-    # compute dft & axis
-    f_wk  = np.fft.rfftn(np.flip(f_tx,axis=0), axes=(1,2,0), norm="ortho")
-    w     = np.fft.rfftfreq(t.size,d=t[1]-t[0]) * _twopi
-    kx    = np.fft.fftfreq(x.size,d=x[1]-x[0]) * _twopi
-    ky    = np.fft.fftfreq(y.size,d=y[1]-y[0]) * _twopi
-    # shift ordering
-    kx   = np.fft.fftshift(kx)
-    ky   = np.fft.fftshift(ky)
-    f_wk = np.fft.fftshift(f_wk, axes=(1,2))
-    # return axes & Fourier transform
-    return w, kx, ky, f_wk
-
-# # BACKWARD
-# def iTfft(w,f_w):
-#     # compute inverse dft & axis
-#     f_t  = np.fft.ifft(f_w)
-#     t    = np.fft.fftfreq(w.size,d=w[0]-w[1]) * _twopi
-#     # add normalisation & phase-factor
-#     f_t *= w.size*(w[1]-w[0])/_sq_twopi * np.exp(-complex(0,1)*t*w[0])
-#     # shift ordering
-#     t   = np.fft.fftshift(t)
-#     f_t = np.fft.fftshift(f_t)
-#     t   = t[::-1]
-#     f_t = f_t[::-1]
-#     # return axes & Fourier transform
-#     return t, f_t
+########################################################################################################################
+#                                                                                                                      #
+#                            SPATIAL / TEMPORAL & SPATIO-TEMPORAL FOURIER TRANSFORM TOOLS                              #
+#                                                                                                                      #
+########################################################################################################################
+import numpy as np
+
+def to_w(t):
+    w = np.fft.rfftfreq(t.size,d=(t[1]-t[0]) / (2.*np.pi))
+    return w
+
+def to_t(w, out_shape=None):
+    nt   = 2*(w.size-1)+(out_shape[0]%2 if out_shape else 0 )
+    t  = np.fft.fftfreq(nt,d=(w[1]-w[0])/(2.*np.pi))
+    t  = np.fft.fftshift(t)
+    t -= t[0]
+    return t
+
+def to_k(x):
+    k = np.fft.fftfreq(x.size,d=(x[1]-x[0]) / (2.*np.pi))
+    k = np.fft.fftshift(k)
+    return k
+
+def to_minus_k(x):
+    k = -to_k(x)[::-1]
+    return k
+
+def to_x(k):
+    x  = np.fft.fftfreq(k.size,d=(k[1]-k[0])/(2.*np.pi))
+    x  = np.fft.fftshift(x)
+    x -= x[0]
+    return x
+
+
+# TEMPORAL FOURIER TRANSFORM -------------------------------------------------------------------------------------------
+def dFFT_t(t,f):
+    w = to_w(t)
+    g = np.fft.rfft(f,norm="ortho")
+    return w, g
+
+def iFFT_t(w,g, out_shape=None):
+    t = to_t(w, out_shape )
+    f = np.fft.irfft(g,norm="ortho", s=out_shape)
+    return t, f
+
+# 1D SPATIAL FOURIER TRANSFORM -----------------------------------------------------------------------------------------
+def dFFT_x1(x,f):
+    k = to_k(x)  
+    g = np.fft.fftshift(np.fft.fft(f,norm="ortho"))
+    return k, g
+
+def iFFT_x1(k,g):
+    x = to_x(k)
+    f = np.fft.ifft(np.fft.ifftshift(g),norm="ortho")
+    return x, f
+
+
+# 2D SPATIAL FOURIER TRANSFORM -----------------------------------------------------------------------------------------
+def dFFT_x2(x,y,f):
+    kx = to_k(x)
+    ky = to_k(y)
+    g  = np.fft.fftshift( np.fft.fft2(f, axes=(1,0), norm="ortho") )
+    return kx, ky, g
+
+def iFFT_x2(kx,ky,g):
+    x = to_x(kx)
+    y = to_x(ky)
+    f = np.fft.ifft2( np.fft.ifftshift(g), axes=(1,0), norm="ortho" )
+    return x, y, f
+
+
+# 3D SPATIAL FOURIER TRANSFORM -----------------------------------------------------------------------------------------
+def dFFT_x3(x,y,z,f):
+    kx = to_k(x)
+    ky = to_k(y)
+    kz = to_k(z)
+    g  = np.fft.fftshift( np.fft.fftn(f, axes=(2,1,0), norm="ortho") )
+    return kx, ky, kz, g
+
+def iFFT_x3(kx,ky,kz,g):
+    f = np.fft.ifftn( np.fft.ifftshift(g), axes=(2,1,0), norm="ortho")
+    x = to_x(kx)
+    y = to_x(ky)
+    z = to_x(kz)
+    return x, y, z, f
+
+
+# 1D SPATIO-TEMPORAL FOURIER TRANSFORM ---------------------------------------------------------------------------------
+def dFFT_tx1(t,x,f):
+    w  = to_w(t)
+    kx = to_minus_k(x)
+    g  = np.fft.fftshift( np.fft.rfft2(f, norm="ortho", axes=(1,0)) , axes=(1) )[:,::-1]
+    return w, kx, g
+
+def iFFT_tx1(w,kx,g, out_shape=None):
+    t = to_t(w, out_shape )
+    x = to_x(kx)
+    f = np.fft.irfft2( np.fft.ifftshift(g[:,::-1] , axes=(1) ), norm="ortho", axes=(1,0), s=out_shape)
+    return t, x, f
+
+
+# 2D SPATIO-TEMPORAL FOURIER TRANSFORM ---------------------------------------------------------------------------------
+def dFFT_tx2(t,x,y,f):
+    w  = to_w(t)
+    kx = to_minus_k(x)
+    ky = to_minus_k(y)
+    g  = np.fft.fftshift( np.fft.rfftn(f, norm="ortho", axes=(2,1,0)) , axes=(1,2) )[:,::-1,::-1]
+    return w, kx, ky, g
+
+def iFFT_tx2(w,kx,ky,g, out_shape=None):
+    t = to_t(w, out_shape )
+    x = to_x(kx)
+    y = to_x(ky)
+    f = np.fft.irfftn( np.fft.ifftshift(g[:,::-1,::-1] , axes=(1,2) ), norm="ortho", axes=(2,1,0), s=out_shape)
+    return t, x, y, f
+
+# 3D SPATIO-TEMPORAL FOURIER TRANSFORM ---------------------------------------------------------------------------------
+
+def dFFT_tx3(t,x,y,z,f):
+    w  = to_w(t)
+    kx = to_minus_k(x)
+    ky = to_minus_k(y)
+    kz = to_minus_k(z)
+    g  = np.fft.fftshift( np.fft.rfftn(f, norm="ortho", axes=(3,2,1,0)) , axes=(1,2,3) )[:,::-1,::-1,::-1]
+    return w, kx, ky, kz, g
+
+def iFFT_tx3(w,kx,ky,kz,g, out_shape=None):
+    t = to_t(w, out_shape )
+    x    = to_x(kx)
+    y    = to_x(ky)
+    z    = to_x(kz)
+    f = np.fft.irfftn( np.fft.ifftshift(g[:,::-1,::-1,::-1] , axes=(1,2,3) ), norm="ortho", axes=(3,2,1,0), s=out_shape)
+    return t, x, y, z, f
+
+
+# def scrivi_file2D(x, y, f, name):
+#     f1 = open(name, 'w')
+#     for i in range(0, x.size):
+#         for j in range(0, y.size):
+#             f1.write("%e, %e, %e\n" % (y[j], x[i], np.absolute(f[i,j])) )
+#         f1.write("\n")
+#     f1.close()
+# 
+# nt, nx, ny, ft, fx, fy = 256,256,256, 6, 10, 12
+# t = np.arange(nt)*2*np.pi/nt
+# x = np.arange(nx)*2*np.pi/nx
+# y = np.arange(ny)*2*np.pi/ny
+# A = np.fromfunction(lambda i,j,k: np.sin(2*np.pi*(ft*i/nt-(fx*j/nx+fy*k/ny))) , (nt,nx,ny), dtype=float)
+# print A.shape
+# 
+# w, kx, ky, g = dFFT_tx2(t,x,y,A)
+# print w.shape
+# print kx.shape
+# print ky.shape
+# print g.shape
+# print np.absolute(g) > 0.01 
+# 
+# t2, x2, y2, A2 = iFFT_tx2(w, kx, ky, g)
+# 
+# print "t2",t2.shape
+# print "x2",x2.shape
+# print "y2",y2.shape
+# print "A2",A2.shape
+# scrivi_file2D(w, k, g[:,:,140] , "pippo12.txt")
+
+
